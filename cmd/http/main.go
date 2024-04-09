@@ -6,6 +6,7 @@ import (
 	appProduct "loyalid-test/application/product"
 	appUser "loyalid-test/application/user"
 	"loyalid-test/repository/sql"
+	"os"
 )
 
 var (
@@ -14,7 +15,8 @@ var (
 )
 
 func main() {
-	sqlRepo, err := sql.NewSQLRepository("postgres", "connStr")
+	connStr := os.Getenv("DATABASE_URL")
+	sqlRepo, err := sql.NewSQLRepository("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -23,5 +25,5 @@ func main() {
 	userService = appUser.New()
 	productService = appProduct.New(sqlRepo)
 
-	httpapi.InitRoutes(userService, productService).Run(":8000")
+	httpapi.InitRoutes(userService, productService).Run(":8080")
 }

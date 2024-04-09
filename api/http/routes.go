@@ -14,6 +14,7 @@ func InitRoutes(
 	router := gin.Default()
 
 	userCtrl := NewUserHandler(userService)
+	router.POST("/user/register", userCtrl.Register)
 	router.POST("/user/authenticate", userCtrl.Authenticate)
 	router.GET("/user/current", userCtrl.CurrentUser)
 

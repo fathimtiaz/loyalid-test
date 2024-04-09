@@ -16,6 +16,10 @@ func NewUserHandler(userService *appUser.Service) *UserHandler {
 	}
 }
 
+func (h *UserHandler) Register(c *gin.Context) {
+
+}
+
 func (h *UserHandler) Authenticate(ctx *gin.Context) {
 
 }
