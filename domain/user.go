@@ -1,6 +1,8 @@
 package domain
 
 import (
+	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -14,20 +16,33 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+func UsernameCtx(ctx context.Context) string {
+	username, ok := ctx.Value("username").(string)
+	if !ok {
+		fmt.Printf("failed getting username from context: %+v", ctx.Value("username"))
+	}
+
+	return username
+}
+
 func (u *User) GenerateId() {
 	u.Id = uuid.NewString()
 }
 
-func (u *User) HashAndSetPassword(password string) (err error) {
+func (u *User) HashPassword() (err error) {
 	var hashByte []byte
 
-	if hashByte, err = bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost); err != nil {
+	if hashByte, err = bcrypt.GenerateFromPassword([]byte(u.password), bcrypt.DefaultCost); err != nil {
 		return err
 	}
 
 	u.password = string(hashByte)
 
 	return
+}
+
+func (u *User) ValidatePassword(password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(u.password), []byte(password))
 }
 
 func (u *User) SetPassword(password string) {

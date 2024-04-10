@@ -7,6 +7,8 @@ import (
 )
 
 func (s *Service) CreateProduct(ctx context.Context, product *domain.Product) (err error) {
+	product.GenerateId()
+
 	return s.repo.CreateProduct(ctx, product)
 }
 

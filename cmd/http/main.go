@@ -22,7 +22,7 @@ func main() {
 		return
 	}
 
-	userService = appUser.New()
+	userService = appUser.New(sqlRepo)
 	productService = appProduct.New(sqlRepo)
 
 	httpapi.InitRoutes(userService, productService).Run(":8080")

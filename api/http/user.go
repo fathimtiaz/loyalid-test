@@ -2,6 +2,8 @@ package http
 
 import (
 	appUser "loyalid-test/application/user"
+	"loyalid-test/domain"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,14 +18,14 @@ func NewUserHandler(userService *appUser.Service) *UserHandler {
 	}
 }
 
-func (h *UserHandler) Register(c *gin.Context) {
+func (h *UserHandler) CurrentUser(c *gin.Context) {
+	var err error
+	var user domain.User
 
-}
+	if user, err = h.UserService.CurrentUser(c); err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
 
-func (h *UserHandler) Authenticate(ctx *gin.Context) {
-
-}
-
-func (h *UserHandler) CurrentUser(ctx *gin.Context) {
-
+	c.JSON(http.StatusOK, user)
 }

@@ -18,7 +18,8 @@ import (
 
 // CustomClaims contains custom data we want from the token.
 type CustomClaims struct {
-	Scope string `json:"scope"`
+	Scope    string `json:"scope"`
+	Nickname string `json:"nickname"`
 }
 
 // Validate does nothing for this example, but we need
@@ -66,4 +67,21 @@ func Authenticate() gin.HandlerFunc {
 	)
 
 	return adapter.Wrap(middleware.CheckJWT)
+}
+
+func SetAuthdUserCtx() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		claims, ok := c.Request.Context().Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
+		if !ok {
+			c.AbortWithStatus(401)
+		}
+
+		// customClaims, ok := claims.CustomClaims.(CustomClaims)
+		// if !ok {
+		// 	c.AbortWithStatus(401)
+		// }
+
+		c.Set("username", claims.RegisteredClaims.Subject)
+		c.Next()
+	}
 }

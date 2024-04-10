@@ -6,7 +6,7 @@ services:
     environment:
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/database?sslmode=disable
       AUTH0_DOMAIN: "dev-waygvmnclik5ibp8.us.auth0.com"
-      AUHT0_AUDIENCE: "https://loyalid-test/get-token"
+      AUTH0_AUDIENCE: "https://loyalid-test/get-token"
     depends_on:
       db:
         condition: service_healthy
@@ -24,6 +24,10 @@ services:
       - 6432
     volumes:
       - db:/var/lib/postgresql/data
+      # Load database schema from ./database.sql
+      # If you want to reload new database schema, you need to execute
+      # `docker-compose down --volumes` first to remove the volume.
+      - ./database.sql:/docker-entrypoint-initdb.d/database.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
