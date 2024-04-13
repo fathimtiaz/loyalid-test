@@ -3,6 +3,7 @@ package http
 import (
 	appUser "loyalid-test/application/user"
 	"loyalid-test/domain"
+	"loyalid-test/repository"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -23,7 +24,12 @@ func (h *UserHandler) CurrentUser(c *gin.Context) {
 	var user domain.User
 
 	if user, err = h.UserService.CurrentUser(c.Request.Context()); err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		if err == repository.ErrNotFound {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+
+		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 

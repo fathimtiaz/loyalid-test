@@ -27,12 +27,12 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 	var product domain.Product
 
 	if err = c.ShouldBindJSON(&product); err != nil {
-		c.AbortWithStatusJSON(http.StatusNotAcceptable, err.Error())
+		c.AbortWithStatus(http.StatusNotAcceptable)
 		return
 	}
 
 	if err = h.ProductService.CreateProduct(c.Request.Context(), &product); err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
@@ -45,7 +45,12 @@ func (h *ProductHandler) ListProduct(c *gin.Context) {
 	var result []domain.Product
 
 	if result, err = h.ProductService.GetProducts(c.Request.Context(), getProductsQueryToFilter(query)); err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		if err == repository.ErrNotFound {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+
+		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
@@ -54,14 +59,17 @@ func (h *ProductHandler) ListProduct(c *gin.Context) {
 
 func getProductsQueryToFilter(query url.Values) (result repository.ProductFilter) {
 	var err error
+	var limit, page int
 
-	if result.Limit, err = strconv.Atoi(query.Get("limit")); err != nil {
+	if limit, err = strconv.Atoi(query.Get("limit")); err != nil {
 		log.Print("error parsing query limit", err.Error())
 	}
 
-	if result.Page, err = strconv.Atoi(query.Get("page")); err != nil {
+	if page, err = strconv.Atoi(query.Get("page")); err != nil {
 		log.Print("error parsing query page", err.Error())
 	}
+
+	result.Pagination = repository.NewPagination(page, limit)
 
 	return
 }

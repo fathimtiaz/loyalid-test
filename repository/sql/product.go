@@ -2,37 +2,29 @@ package sql
 
 import (
 	"context"
+	"database/sql"
 	"loyalid-test/domain"
 	"loyalid-test/repository"
 )
 
-func (repo *SQLRepository) CreateProduct(ctx context.Context, product *domain.Product) (err error) {
-	err = repo.db.QueryRowContext(ctx, `
-		INSERT INTO product_ (name_, price) 
-		VALUES ($1, $2) RETURNING id
-		`, product.Name, product.Price).Scan(&product.Id)
-	if err != nil {
-		return err
-	}
-
-	return
+func (repo *SQLRepository) CreateProduct(ctx context.Context, product *domain.Product) error {
+	return repo.db.QueryRowContext(ctx, `
+		INSERT INTO product_ (id, name_, price) 
+		VALUES ($1, $2, $3) RETURNING id
+		`, product.Id, product.Name, product.Price).Scan(&product.Id)
 }
 
 func (repo *SQLRepository) GetProducts(ctx context.Context, filter repository.ProductFilter) (products []domain.Product, err error) {
-	if filter.Limit <= 0 {
-		filter.Limit = 10
-	}
-
-	if filter.Page <= 0 {
-		filter.Page = 0
-	}
-
 	rows, err := repo.db.QueryContext(ctx, `
 		SELECT id, name_, price
 		FROM product_
 		LIMIT $1 OFFSET $2
-		`, filter.Limit, filter.Page)
+		`, filter.Limit(), (filter.Page()-1)*filter.Limit())
 	if err != nil {
+		if err == sql.ErrNoRows {
+			err = repository.ErrNotFound
+		}
+
 		return []domain.Product{}, err
 	}
 
