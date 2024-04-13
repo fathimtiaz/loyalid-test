@@ -13,6 +13,8 @@ func InitRoutes(
 ) *gin.Engine {
 	router := gin.Default()
 
+	router.Use(RateLimit())
+
 	userCtrl := NewUserHandler(userService)
 	router.GET("/user/current", Authenticate(), userCtrl.CurrentUser)
 

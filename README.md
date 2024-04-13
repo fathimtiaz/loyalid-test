@@ -52,3 +52,8 @@ curl --location 'http://localhost:8080/product?page=1&limit=10' \
 --header 'Authorization: Bearer {TOKEN}'
 ```
 Replace {TOKEN} with obtained access token from `Get Access Token`.
+
+### Test Rate Limiter
+```bash
+for i in {1..10}; do curl --location 'http://localhost:8080/product?page=1&limit=10' --header 'Authorization: Bearer {TOKEN}'; done
+```
