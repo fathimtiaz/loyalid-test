@@ -7,5 +7,5 @@ import (
 )
 
 func (s *Service) CurrentUser(ctx context.Context) (user domain.User, err error) {
-	return s.repo.GetUserByUsername(ctx, domain.UsernameCtx(ctx))
+	return s.repo.GetUserByAuth0Id(ctx, domain.Auth0IdCtx(ctx))
 }
