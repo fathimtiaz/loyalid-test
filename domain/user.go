@@ -2,9 +2,11 @@ package domain
 
 import (
 	"context"
-	"fmt"
+	"loyalid-test/lib/jwt"
 	"time"
 
+	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
+	"github.com/auth0/go-jwt-middleware/v2/validator"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -17,12 +19,17 @@ type User struct {
 }
 
 func UsernameCtx(ctx context.Context) string {
-	username, ok := ctx.Value("username").(string)
+	claims, ok := ctx.Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
 	if !ok {
-		fmt.Printf("failed getting username from context: %+v", ctx.Value("username"))
+		return ""
 	}
 
-	return username
+	customClaims, ok := claims.CustomClaims.(jwt.CustomClaims)
+	if !ok {
+		return ""
+	}
+
+	return customClaims.Nickname
 }
 
 func (u *User) GenerateId() {

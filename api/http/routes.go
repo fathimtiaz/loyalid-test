@@ -14,11 +14,11 @@ func InitRoutes(
 	router := gin.Default()
 
 	userCtrl := NewUserHandler(userService)
-	router.GET("/user/current", Authenticate(), SetAuthdUserCtx(), userCtrl.CurrentUser)
+	router.GET("/user/current", Authenticate(), userCtrl.CurrentUser)
 
 	productCtrl := NewProductHandler(productService)
-	router.POST("/product", Authenticate(), SetAuthdUserCtx(), productCtrl.CreateProduct)
-	router.GET("/product", Authenticate(), SetAuthdUserCtx(), productCtrl.ListProduct)
+	router.POST("/product", Authenticate(), productCtrl.CreateProduct)
+	router.GET("/product", Authenticate(), productCtrl.ListProduct)
 
 	return router
 }

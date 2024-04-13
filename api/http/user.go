@@ -22,7 +22,7 @@ func (h *UserHandler) CurrentUser(c *gin.Context) {
 	var err error
 	var user domain.User
 
-	if user, err = h.UserService.CurrentUser(c); err != nil {
+	if user, err = h.UserService.CurrentUser(c.Request.Context()); err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}

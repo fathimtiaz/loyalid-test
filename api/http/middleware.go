@@ -1,8 +1,8 @@
 package http
 
 import (
-	"context"
 	"log"
+	"loyalid-test/lib/jwt"
 	"net/http"
 	"net/url"
 	"os"
@@ -15,18 +15,6 @@ import (
 
 	adapter "github.com/gwatts/gin-adapter"
 )
-
-// CustomClaims contains custom data we want from the token.
-type CustomClaims struct {
-	Scope    string `json:"scope"`
-	Nickname string `json:"nickname"`
-}
-
-// Validate does nothing for this example, but we need
-// it to satisfy validator.CustomClaims interface.
-func (c CustomClaims) Validate(ctx context.Context) error {
-	return nil
-}
 
 // Authenticate is a middleware that will check the validity of our JWT.
 func Authenticate() gin.HandlerFunc {
@@ -44,7 +32,7 @@ func Authenticate() gin.HandlerFunc {
 		[]string{os.Getenv("AUTH0_AUDIENCE")},
 		validator.WithCustomClaims(
 			func() validator.CustomClaims {
-				return &CustomClaims{}
+				return &jwt.CustomClaims{}
 			},
 		),
 		validator.WithAllowedClockSkew(time.Minute),
@@ -67,21 +55,4 @@ func Authenticate() gin.HandlerFunc {
 	)
 
 	return adapter.Wrap(middleware.CheckJWT)
-}
-
-func SetAuthdUserCtx() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		claims, ok := c.Request.Context().Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
-		if !ok {
-			c.AbortWithStatus(401)
-		}
-
-		// customClaims, ok := claims.CustomClaims.(CustomClaims)
-		// if !ok {
-		// 	c.AbortWithStatus(401)
-		// }
-
-		c.Set("username", claims.RegisteredClaims.Subject)
-		c.Next()
-	}
 }

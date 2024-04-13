@@ -31,7 +31,7 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 		return
 	}
 
-	if err = h.ProductService.CreateProduct(c, &product); err != nil {
+	if err = h.ProductService.CreateProduct(c.Request.Context(), &product); err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -44,7 +44,7 @@ func (h *ProductHandler) ListProduct(c *gin.Context) {
 	var query url.Values = c.Request.URL.Query()
 	var result []domain.Product
 
-	if result, err = h.ProductService.GetProducts(c, getProductsQueryToFilter(query)); err != nil {
+	if result, err = h.ProductService.GetProducts(c.Request.Context(), getProductsQueryToFilter(query)); err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
